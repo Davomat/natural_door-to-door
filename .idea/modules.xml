@@ -2,7 +2,7 @@
 <project version="4">
   <component name="ProjectModuleManager">
     <modules>
-      <module fileurl="file://$PROJECT_DIR$/.idea/natural_door_to_door.iml" filepath="$PROJECT_DIR$/.idea/natural_door_to_door.iml" />
+      <module fileurl="file://$PROJECT_DIR$/.idea/natural_door-to-door.iml" filepath="$PROJECT_DIR$/.idea/natural_door-to-door.iml" />
     </modules>
   </component>
 </project>
