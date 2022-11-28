@@ -35,6 +35,9 @@ class Direction(Vec2):
         return (math.isclose(d1.x, d2.x, abs_tol=tolerance) and math.isclose(d1.y, d2.y, abs_tol=tolerance)) or \
                (math.isclose(d1.x, -d2.x, abs_tol=tolerance) and math.isclose(d1.y, -d2.y, abs_tol=tolerance))
 
+    def __len__(self):
+        return (self.x ** 2 + self.y ** 2) ** 0.5
+
     def __repr__(self):
         return f' -> {Point(self.x, self.y)}'
 
