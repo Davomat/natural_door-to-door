@@ -1,3 +1,4 @@
+from core.beam import Beam
 from core.corner import Corner
 from core.edge import Edge
 from core.point import Point
@@ -11,8 +12,6 @@ class Polygon:
     ----
     points : list[Point]
         The points that create the outer shell of the polygon.
-    is_room : bool
-        The flag that determines the use of the polygon as a room (outer boundary) or a barrier (inner boundary).
 
     Attributes
     ----------
@@ -24,12 +23,12 @@ class Polygon:
         The corners of the outer shell.
     """
 
-    def __init__(self, points: list[Point], is_room):
+    def __init__(self, points: list[Point]):
         self.points: list[Point] = points
         self._check_points()
         self.edges: list[Edge] = self._get_edges()
         self.corners: list[Corner] = self._get_corners()
-        if (is_room and not self._is_counterclockwise) or (not is_room and self._is_counterclockwise):
+        if not self._is_counterclockwise:
             self._reverse()
 
     def __len__(self) -> int:
@@ -75,7 +74,7 @@ class Polygon:
         """
         Calculates the corners of the polygon.
         """
-        return [Corner(self.edges[i], self.edges[(i + 1) % len(self)]) for i in range(len(self))]
+        return [Corner(self.edges[(i - 1) % len(self)], self.edges[i]) for i in range(len(self))]
 
     @property
     def _is_counterclockwise(self) -> bool:
@@ -102,3 +101,81 @@ class Polygon:
         self.points.reverse()
         self.edges = self._get_edges()
         self.corners = self._get_corners()
+
+    def get_inner_polygon(self, nat_dist: float) -> 'Polygon':
+        """
+        Calculates a new polygon inside the original one with the given natural distance to the original.
+
+        The created polygon edges are parallel to the original ones with the given distance.
+        The corner points may have a greater distance to its original corners respectively.
+        """
+        # initialize points for new polygon
+        new_points = []
+
+        # create points in every corner
+        for corner in self.corners:
+
+            # skip straight lines
+            if 179. < corner.angle < 181.:
+                continue
+
+            nat_dist_beam_1 = corner.e1.to_beam().nat_dist_beam(nat_dist)
+            nat_dist_beam_2 = corner.e2.to_beam().nat_dist_beam(nat_dist)
+            new_points.append(Beam.intersection(nat_dist_beam_1, nat_dist_beam_2))
+
+        return Polygon(new_points)
+
+    def get_outer_polygon(self, nat_dist: float) -> 'Polygon':
+        """
+        Calculates a new polygon outside the original one with the given natural distance to the original.
+
+        The created polygon edges are parallel to the original ones with the given distance.
+        The corner points may have a greater distance to its original corners respectively.
+        """
+        self._reverse()
+        new_polygon = self.get_inner_polygon(nat_dist)
+        self._reverse()
+        return new_polygon
+
+    @staticmethod
+    def sample1() -> 'Polygon':
+        """
+        Returns a polygon with 10 corners looking like this:
+
+        7 .____.____.____.____. 5
+          |         6         |
+          |                   L____. 3
+          |                  4     |
+        8 L____.____. 9            |
+                     \\            |
+                       \\  0       |
+                         |         |
+                       1 L____.____| 2
+        """
+        return Polygon([
+            Point(30., 10.), Point(30.,  0.), Point(50., 0.), Point(50., 30.), Point(40., 30.),
+            Point(40., 40.), Point(20., 40.), Point(0., 40.), Point(0.,  20.), Point(20., 20.),
+        ])
+
+    @staticmethod
+    def sample2() -> 'Polygon':
+        """
+        Returns a polygon with 16 edges/corners looking like this:
+
+                 ._____.  ._____.
+                 |     |  |     |
+                 |  ___|  |     |
+                 | |      |     |
+        .________| |      |___. |
+        |          L__________| |
+        |                       |
+        L_____.                 |
+              |                 |
+              L_________________|
+        """
+        return Polygon([
+            Point(5.,   0.), Point(20.,  0.), Point(20., 20.), Point(15., 20.),
+            Point(15., 10.), Point(18., 10.), Point(18.,  8.), Point(10.,  8.),
+            Point(10., 15.), Point(13., 15.), Point(13., 20.), Point(8.,  20.),
+            Point(8.,  10.), Point(0.,  10.), Point(0.,   4.), Point(5.,   4.),
+        ])
