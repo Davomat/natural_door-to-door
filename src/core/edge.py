@@ -46,6 +46,9 @@ class Edge:
 
     @property
     def dir(self) -> Direction:
+        """
+        Returns a direction object running from point 1 to point 2.
+        """
         return Direction.from_points(self.p1, self.p2)
 
     @property
