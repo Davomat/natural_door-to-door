@@ -1,3 +1,5 @@
+from typing import Optional
+
 from core.beam import Beam
 from core.direction import Direction
 from core.point import Point
@@ -63,3 +65,27 @@ class Edge:
         Converts the edge into a beam instance starting at p1.
         """
         return Beam(self.p1, self.dir)
+
+    def cuts_point(self, pt: Point) -> bool:
+        """
+        Checks whether a point is on or very near the edge.
+        """
+        # check whether point equals end points
+        if pt == self.p1:
+            return True
+        if pt == self.p2:
+            return True
+
+        # find the closest point from the given point to the edges beam
+        closest_point_on_edge = self.intersection_with_beam(Beam(pt, self.dir.perpendicular()))
+        # ... and check for equality
+        if closest_point_on_edge == pt:
+            return True
+
+        return False
+
+    def intersection_with_beam(self, beam: Beam) -> Optional[Point]:
+        """
+        Calculates the intersection point of a beam hitting the edges beam if only one exists.
+        """
+        return Beam.intersection(self.to_beam(), beam)
