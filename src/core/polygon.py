@@ -102,7 +102,7 @@ class Polygon:
         self.edges = self._get_edges()
         self.corners = self._get_corners()
 
-    def get_inner_polygon(self, nat_dist: float) -> 'Polygon':
+    def get_inner_polygon(self, nat_dist: float, sharp_angle: float) -> 'Polygon':
         """
         Calculates a new polygon inside the original one with the given natural distance to the original.
 
@@ -119,13 +119,24 @@ class Polygon:
             if 179. < corner.angle < 181.:
                 continue
 
+            # calculate parallel beams
             nat_dist_beam_1 = corner.e1.to_beam().nat_dist_beam(nat_dist)
             nat_dist_beam_2 = corner.e2.to_beam().nat_dist_beam(nat_dist)
-            new_points.append(Beam.intersection(nat_dist_beam_1, nat_dist_beam_2))
 
+            # normal corners
+            if corner.angle < sharp_angle:
+                new_points.append(Beam.intersection(nat_dist_beam_1, nat_dist_beam_2))
+
+            # by definition sharp corners
+            else:
+                perpendicular_nat_dist_bisector = corner.bisector.perpendicular_nat_dist_beam(nat_dist)
+                new_points.append(Beam.intersection(nat_dist_beam_1, perpendicular_nat_dist_bisector))
+                new_points.append(Beam.intersection(nat_dist_beam_2, perpendicular_nat_dist_bisector))
+
+        # return list of found points as polygon
         return Polygon(new_points)
 
-    def get_outer_polygon(self, nat_dist: float) -> 'Polygon':
+    def get_outer_polygon(self, nat_dist: float, sharp_angle: float) -> 'Polygon':
         """
         Calculates a new polygon outside the original one with the given natural distance to the original.
 
@@ -133,7 +144,7 @@ class Polygon:
         The corner points may have a greater distance to its original corners respectively.
         """
         self._reverse()
-        new_polygon = self.get_inner_polygon(nat_dist)
+        new_polygon = self.get_inner_polygon(nat_dist, sharp_angle)
         self._reverse()
         return new_polygon
 

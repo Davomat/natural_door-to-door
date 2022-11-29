@@ -2,10 +2,9 @@ import math
 
 from core.point import Point
 from core.std_vals import *
-from core.vec2 import Vec2
 
 
-class Direction(Vec2):
+class Direction:
     """
     A class to represent a direction on the x-y-plane.
 
@@ -25,7 +24,8 @@ class Direction(Vec2):
     """
 
     def __init__(self, x: float, y: float):
-        super().__init__(x, y)
+        self.x = x
+        self.y = y
         if x == 0 and y == 0:
             raise RuntimeError("Cannot create a direction vector with length 0:\n" + str(self))
 
@@ -34,6 +34,15 @@ class Direction(Vec2):
         d2 = other.normalized()
         return (math.isclose(d1.x, d2.x, abs_tol=tolerance) and math.isclose(d1.y, d2.y, abs_tol=tolerance)) or \
                (math.isclose(d1.x, -d2.x, abs_tol=tolerance) and math.isclose(d1.y, -d2.y, abs_tol=tolerance))
+
+    def __add__(self, other):
+        return Direction(self.x + other.x, self.y + other.y)
+
+    def __sub__(self, other):
+        return Direction(self.x - other.x, self.y - other.y)
+
+    def __neg__(self):
+        return Direction(-self.x, -self.y)
 
     def __len__(self):
         return (self.x ** 2 + self.y ** 2) ** 0.5
@@ -93,6 +102,12 @@ class Direction(Vec2):
         Returns a new instance of a direction orthogonal (mathematical positive) to given one.
         """
         return Direction(-self.y, self.x)
+
+    def to_point(self) -> Point:
+        """
+        Returns a point object with the x and y values of the given direction object.
+        """
+        return Point(self.x, self.y)
 
     @staticmethod
     def from_points(p1: Point, p2: Point) -> 'Direction':

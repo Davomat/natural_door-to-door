@@ -37,7 +37,17 @@ class Beam:
         """
         Returns a new Beam instance with the same direction but nat_dist away (to the left) of the given one.
         """
-        return Beam(self.pt + self.dir.perpendicular().naturalized(nat_dist), self.dir)
+        return Beam(self.pt + self.dir.perpendicular().naturalized(nat_dist).to_point(), self.dir)
+
+    def perpendicular_nat_dist_beam(self, nat_dist: float) -> 'Beam':
+        """
+        Calculates the perpendicular beam to the given beam.
+        The new beam starts on the given one with a distance of nat_dist to its the start.
+        """
+        nat_vec = self.dir.naturalized(nat_dist)
+        new_pt = self.pt + nat_vec.to_point()
+        new_dir = self.dir.perpendicular()
+        return Beam(new_pt, new_dir)
 
     @staticmethod
     def intersection(b1: 'Beam', b2: 'Beam') -> Optional[Point]:
