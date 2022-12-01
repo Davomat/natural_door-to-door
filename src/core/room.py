@@ -74,6 +74,7 @@ class Room:
         for door in self.doors:
             # find the edge the door is positioned at
             door_edge = self._corresponding_edge(door)
+            print(door, 'auf', door_edge)
             # take the edge's beam starting from the door - the virtual door is the start point of the nat-dist-beam
             virtual_door = Beam(door, door_edge.dir).nat_dist_beam(nat_dist).pt
             # add to list
@@ -93,12 +94,12 @@ class Room:
         """
         # check outer room
         for edge in self.boundary.edges:
-            if edge.cuts_point(pt, tolerance=door_tolerance):
+            if edge.contains_point(pt, tolerance=door_tolerance):
                 return edge
         # check barriers (that can also be little rooms inside a big one)
         for barrier in self.barriers:
             for edge in barrier.edges:
-                if edge.cuts_point(pt, tolerance=door_tolerance):
+                if edge.contains_point(pt, tolerance=door_tolerance):
                     return edge
         # point belongs to no edge of the room
         raise RuntimeError(f'Point {pt} does not belong to room {self}')
@@ -146,7 +147,7 @@ class Room:
         Returns a room with a barrier inside, looking like this:
         .____.____.____.____.
         |    .____.         o
-        o    L____|         L____.
+        o    L_o__|         L____.
         |                        |
         L____.____.    .____.    |
                    \\   \\  |    o
@@ -157,6 +158,6 @@ class Room:
         boundary = Polygon.sample1()
         barriers = [Polygon([Point(10., 30.), Point(20., 30.), Point(20., 35.), Point(10., 35.)], False),
                     Polygon([Point(30., 20.), Point(40., 20.), Point(40., 10.)], False)]
-        doors = [Point(0., 30.), Point(40., 0.), Point(40., 35.), Point(50., 15.)]
+        doors = [Point(0., 30.), Point(15., 30.), Point(40., 0.), Point(40., 35.), Point(50., 15.)]
 
         return Room(boundary, barriers, doors)

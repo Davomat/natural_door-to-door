@@ -61,7 +61,7 @@ class Polygon:
         Checks out point list and deletes points that would lead to a straight (180°) corner.
         """
         for i in reversed(range(1, len(self) + 2)):
-            if Edge(self.points[i % len(self)], self.points[i - 2]).cuts_point(self.points[(i - 1) % len(self)]):
+            if Edge(self.points[i % len(self)], self.points[i - 2]).contains_point(self.points[(i - 1) % len(self)]):
                 self.points.pop((i - 1) % len(self))
 
     def _get_edges(self) -> list[Edge]:

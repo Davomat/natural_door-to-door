@@ -67,7 +67,7 @@ class Edge:
         """
         return Beam(self.p1, self.dir)
 
-    def cuts_point(self, pt: Point, tolerance=std_tolerance) -> bool:
+    def contains_point(self, pt: Point, tolerance=std_tolerance) -> bool:
         """
         Checks whether a point is on or very near the edge.
         """
@@ -76,6 +76,11 @@ class Edge:
             return True
         if pt == self.p2:
             return True
+
+        # check whether point is in possible edge's x and y boundary
+        if not (min(self.p1.x, self.p2.x) <= pt.x <= max(self.p1.x, self.p2.x)) \
+                or not (min(self.p1.y, self.p2.y) <= pt.y <= max(self.p1.y, self.p2.y)):
+            return False
 
         # find the closest point from the given point to the edges beam
         closest_point_on_edge = self.intersection_with_beam(Beam(pt, self.dir.perpendicular()))
