@@ -49,6 +49,15 @@ class Beam:
         new_dir = self.dir.perpendicular()
         return Beam(new_pt, new_dir)
 
+    def hits_point(self, point_to_hit):
+        """
+        Checks whether a point lies on the beam.
+        """
+        # construct a control beam from the beams start
+        beam_to_point = Beam(self.pt, Direction.from_points(self.pt, point_to_hit))
+        # and check if both beams are parallel
+        return self.dir.normalized() == beam_to_point.dir.normalized()
+
     @staticmethod
     def intersection(b1: 'Beam', b2: 'Beam') -> Optional[Point]:
         """
@@ -60,7 +69,7 @@ class Beam:
         if b1.dir.normalized() == b2.dir.normalized():
             return None
 
-        # new_beam = beam1.pt + r1 * beam1.dir
+        # new_beam = beam1.point + r1 * beam1.dir
         r1: float = ((b2.pt.x - b1.pt.x) * b2.dir.y + (b1.pt.y - b2.pt.y) * b2.dir.x) / \
                     (b1.dir.x * b2.dir.y - b1.dir.y * b2.dir.x)
         return Point(b1.pt.x + r1 * b1.dir.x, b1.pt.y + r1 * b1.dir.y)

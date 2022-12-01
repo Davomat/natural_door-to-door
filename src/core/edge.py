@@ -67,16 +67,26 @@ class Edge:
         """
         return Beam(self.p1, self.dir)
 
-    def contains_point(self, pt: Point, tolerance=std_tolerance) -> bool:
+    def contains_point(self, point: Point, tolerance=std_tolerance) -> bool:
         """
-        Checks whether a point is on or very near the edge.
+        Checks whether a point is on the edge.
         """
         # check whether point equals end points
-        if pt == self.p1:
-            return True
-        if pt == self.p2:
+        if point in self.points:
             return True
 
+        # check whether point is in possible edge's x and y boundary
+        if not (min(self.p1.x, self.p2.x) <= point.x <= max(self.p1.x, self.p2.x)) \
+                or not (min(self.p1.y, self.p2.y) <= point.y <= max(self.p1.y, self.p2.y)):
+            return False
+
+        # check whether point is on the edge's trajectory
+        return self.to_beam().hits_point(point)
+
+    def contains_point_with_tolerance(self, pt: Point, tolerance=std_tolerance) -> bool:
+        """
+        Checks whether a door point is on or very near the edge.
+        """
         # check whether point is in possible edge's x and y boundary
         if not (min(self.p1.x, self.p2.x) <= pt.x <= max(self.p1.x, self.p2.x)) \
                 or not (min(self.p1.y, self.p2.y) <= pt.y <= max(self.p1.y, self.p2.y)):
@@ -95,3 +105,21 @@ class Edge:
         Calculates the intersection point of a beam hitting the edges beam if only one exists.
         """
         return Beam.intersection(self.to_beam(), beam)
+
+    @staticmethod
+    def intersection(edge_1: 'Edge', edge_2: 'Edge') -> bool:
+        """
+        Checks whether two edges cut each other.
+
+        Note: Touching is not considered cutting.
+        """
+        # get the intersection of the edges beams
+        beams_intersection = Beam.intersection(edge_1.to_beam(), edge_2.to_beam())
+        # check if a cutting point exists
+        if beams_intersection is None:
+            return False
+        # check if the edges not just touch
+        if beams_intersection in edge_1.points + edge_2.points:
+            return False
+        # check if cutting point is on edges
+        return edge_1.contains_point(beams_intersection) and edge_2.contains_point(beams_intersection)

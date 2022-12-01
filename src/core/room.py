@@ -70,11 +70,9 @@ class Room:
         """
         Calculates the rooms virtual doors on the virtual polygons.
         """
-        # TODO find mistake (first door in room sample)
         for door in self.doors:
             # find the edge the door is positioned at
             door_edge = self._corresponding_edge(door)
-            print(door, 'auf', door_edge)
             # take the edge's beam starting from the door - the virtual door is the start point of the nat-dist-beam
             virtual_door = Beam(door, door_edge.dir).nat_dist_beam(nat_dist).pt
             # add to list
@@ -94,15 +92,29 @@ class Room:
         """
         # check outer room
         for edge in self.boundary.edges:
-            if edge.contains_point(pt, tolerance=door_tolerance):
+            if edge.contains_point_with_tolerance(pt, tolerance=door_tolerance):
                 return edge
         # check barriers (that can also be little rooms inside a big one)
         for barrier in self.barriers:
             for edge in barrier.edges:
-                if edge.contains_point(pt, tolerance=door_tolerance):
+                if edge.contains_point_with_tolerance(pt, tolerance=door_tolerance):
                     return edge
         # point belongs to no edge of the room
         raise RuntimeError(f'Point {pt} does not belong to room {self}')
+
+    def _valid_nav_point(self, point_to_validate: Point) -> bool:
+        """
+        Checks if a point is suitable for navigation.
+        """
+        # point must be on or inside boundary
+        if not self.virtual_boundary.surrounds_or_hits_point(point_to_validate):
+            return False
+        # point must not be inside barriers
+        for virtual_barrier in self.virtual_barriers:
+            if virtual_barrier.surrounds_point(point_to_validate):
+                return False
+        # all clear
+        return True
 
     def _collect_nav_points(self):
         """
@@ -111,22 +123,50 @@ class Room:
         # add inner corners from outer shell
         for corner in self.virtual_boundary.corners:
             if corner.angle > 180:
-                self.nav_points.append(corner.pt)
+                if self._valid_nav_point(corner.pt):
+                    self.nav_points.append(corner.pt)
         # add outer corners from inner barriers
         for barrier in self.virtual_barriers:
             for corner in barrier.corners:
                 if corner.angle > 180:
                     self.nav_points.append(corner.pt)
         # add points in front of doors
-        for door in self.virtual_doors:
-            self.nav_points.append(door)
+        for virtual_door in self.virtual_doors:
+            self.nav_points.append(virtual_door)
+
+    def _valid_nav_edge(self, edge_to_validate: Edge) -> bool:
+        """
+        Checks if a edge is suitable for navigation.
+        """
+        # check that edge does not cut any polygon point or edge
+        if self.virtual_boundary.cuts_edge(edge_to_validate):
+            return False
+        for virtual_barrier in self.virtual_barriers:
+            if virtual_barrier.cuts_edge(edge_to_validate):
+                return False
+        # check that edge is inside the room and not inside a barrier
+        if not self.virtual_boundary.surrounds_or_hits_point(edge_to_validate.middle_point):
+            return False
+        for virtual_barrier in self.virtual_barriers:
+            if virtual_barrier.surrounds_point(edge_to_validate.middle_point):
+                return False
+        # all clear
+        return True
 
     def _collect_nav_edges(self):
         """
         Connects all pairwise combinations of the nav_points if the connection is valid.
         A valid connection lies completely in the virtual room and does not cut any edge.
         """
-        # TODO write
+        # find all inner nav points
+        for i in range(len(self.nav_points) - 1):
+            for j in range(i + 1, len(self.nav_points)):
+                possible_nav_edge = Edge(self.nav_points[i], self.nav_points[j])
+                if self._valid_nav_edge(possible_nav_edge):
+                    self.nav_edges.append(possible_nav_edge)
+        # connect virtual doors with real doors
+        for i in range(len(self.doors)):
+            self.nav_edges.append(Edge(self.doors[i], self.virtual_doors[i]))
 
     def find_paths(self, nat_dist: float, sharp_angle: float) -> list[Edge]:
         """
@@ -146,8 +186,8 @@ class Room:
         """
         Returns a room with a barrier inside, looking like this:
         .____.____.____.____.
-        |    .____.         o
-        o    L_o__|         L____.
+        |      .__.         o
+        o      Lo_|         L____.
         |                        |
         L____.____.    .____.    |
                    \\   \\  |    o
@@ -156,7 +196,7 @@ class Room:
                        L____o____|
         """
         boundary = Polygon.sample1()
-        barriers = [Polygon([Point(10., 30.), Point(20., 30.), Point(20., 35.), Point(10., 35.)], False),
+        barriers = [Polygon([Point(15., 30.), Point(20., 30.), Point(20., 35.), Point(15., 35.)], False),
                     Polygon([Point(30., 20.), Point(40., 20.), Point(40., 10.)], False)]
         doors = [Point(0., 30.), Point(15., 30.), Point(40., 0.), Point(40., 35.), Point(50., 15.)]
 

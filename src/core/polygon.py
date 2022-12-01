@@ -1,5 +1,6 @@
 from core.beam import Beam
 from core.corner import Corner
+from core.direction import Direction
 from core.edge import Edge
 from core.point import Point
 
@@ -145,6 +146,75 @@ class Polygon:
         new_polygon = self.get_virtual_polygon(nat_dist, sharp_angle)
         self._reverse()
         return new_polygon
+
+    def cuts_edge(self, other_edge: Edge) -> bool:
+        """
+        Checks if a given edge is cutting any of the polygons edges.
+
+        The endpoints of the given other_edge may touch the polygon, this is not considered `cutting`.
+        However, corners of the polygon may not touch the edge line.
+        """
+        # cutting other_edge with edge
+        for self_edge in self.edges:
+            if Edge.intersection(self_edge, other_edge):
+                return True
+        # cutting other_edge with point that is not also an end point of other_edge.
+        for self_point in self.points:
+            if self_point in other_edge.points:
+                continue
+            if other_edge.contains_point(self_point):
+                return True
+        # all clear
+        return False
+
+    def surrounds_or_hits_point(self, point: Point) -> bool:
+        """
+        Checks if a given point lies on or is inside of the polygon.
+        """
+        return self.surrounds_point(point) or self.hits_point(point)
+
+    def hits_point(self, point: Point) -> bool:
+        """
+        Checks if a given point lies on the polygon.
+        """
+        for edge in self.edges:
+            if edge.contains_point(point):
+                return True
+        return False
+
+    def surrounds_point(self, point: Point) -> bool:
+        """
+        Checks if a given point is inside of the polygon.
+
+        This is done by calculating how many edges and corners are cut by a random beam with the point as start.
+        """
+        # setup simple control beam in x-direction
+        control_beam = Beam(point, Direction(1, 0))
+        cut_counter = 0
+
+        # check how many wall edges in one direction from the point get hit by the beam from the point
+        for edge in self.edges:
+            if edge.contains_point(point):
+                # point is part of the polygon
+                return False
+            intersection = Beam.intersection(edge.to_beam(), control_beam)
+            # intersection must exist, be on the right of the point, and be on the edge
+            if intersection is not None \
+                    and intersection.x > point.x \
+                    and edge.contains_point(intersection):
+                cut_counter += 1
+
+        # check how many corners the beam cuts (not passes)
+        # to cut, the corners edges must both lead upwards or downwards
+        # TODO fix
+        for corner in self.corners:
+            if corner.pt.x > point.x and control_beam.hits_point(corner.pt):
+                if (0. < corner.e1.dir.angle < 180. and 0. < corner.e2.dir.angle < 180.) or \
+                        (180. < corner.e1.dir.angle < 360. and 180. < corner.e2.dir.angle < 360.):
+                    cut_counter += 1
+
+        # if the amount is odd, the point is inside
+        return cut_counter % 2 == 1
 
     @staticmethod
     def sample1() -> 'Polygon':
