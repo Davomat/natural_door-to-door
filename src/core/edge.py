@@ -3,6 +3,7 @@ from typing import Optional
 from core.beam import Beam
 from core.direction import Direction
 from core.point import Point
+from core.std_vals import *
 
 
 class Edge:
@@ -66,7 +67,7 @@ class Edge:
         """
         return Beam(self.p1, self.dir)
 
-    def cuts_point(self, pt: Point) -> bool:
+    def cuts_point(self, pt: Point, tolerance=std_tolerance) -> bool:
         """
         Checks whether a point is on or very near the edge.
         """
@@ -79,7 +80,7 @@ class Edge:
         # find the closest point from the given point to the edges beam
         closest_point_on_edge = self.intersection_with_beam(Beam(pt, self.dir.perpendicular()))
         # ... and check for equality
-        if closest_point_on_edge == pt:
+        if Point.are_close(closest_point_on_edge, pt, tolerance):
             return True
 
         return False

@@ -23,12 +23,12 @@ class Polygon:
         The corners of the outer shell.
     """
 
-    def __init__(self, points: list[Point]):
+    def __init__(self, points: list[Point], is_room=True):
         self.points: list[Point] = points
         self._check_points()
         self.edges: list[Edge] = self._get_edges()
         self.corners: list[Corner] = self._get_corners()
-        if not self._is_counterclockwise:
+        if (is_room and not self._is_counterclockwise) or (not is_room and self._is_counterclockwise):
             self._reverse()
 
     def __len__(self) -> int:
@@ -102,9 +102,10 @@ class Polygon:
         self.edges = self._get_edges()
         self.corners = self._get_corners()
 
-    def get_inner_polygon(self, nat_dist: float, sharp_angle: float) -> 'Polygon':
+    def get_virtual_polygon(self, nat_dist: float, sharp_angle: float) -> 'Polygon':
         """
-        Calculates a new polygon inside the original one with the given natural distance to the original.
+        Calculates a new polygon inside the original if its counterclockwise (and outside otherwise),
+        with the given natural distance to the original.
 
         The created polygon edges are parallel to the original ones with the given distance.
         The corner points may have a greater distance to its original corners respectively.
@@ -134,17 +135,14 @@ class Polygon:
                 new_points.append(Beam.intersection(nat_dist_beam_2, perpendicular_nat_dist_bisector))
 
         # return list of found points as polygon
-        return Polygon(new_points)
+        return Polygon(new_points, is_room=self._is_counterclockwise)
 
-    def get_outer_polygon(self, nat_dist: float, sharp_angle: float) -> 'Polygon':
+    def get_other_virtual_polygon(self, nat_dist: float, sharp_angle: float) -> 'Polygon':
         """
-        Calculates a new polygon outside the original one with the given natural distance to the original.
-
-        The created polygon edges are parallel to the original ones with the given distance.
-        The corner points may have a greater distance to its original corners respectively.
+        Calculates a new polygon on the other side then `get_virtual_polygon`.
         """
         self._reverse()
-        new_polygon = self.get_inner_polygon(nat_dist, sharp_angle)
+        new_polygon = self.get_virtual_polygon(nat_dist, sharp_angle)
         self._reverse()
         return new_polygon
 
@@ -153,19 +151,19 @@ class Polygon:
         """
         Returns a polygon with 10 corners looking like this:
 
-        7 .____.____.____.____. 5
-          |         6         |
-          |                   L____. 3
-          |                  4     |
-        8 L____.____. 9            |
+        6 .____.____.____.____. 4
+          |         5         |
+          |                   L____. 2
+          |                  3     |
+        7 L____.____. 8            |
                      \\            |
-                       \\  0       |
+                       \\ 9        |
                          |         |
-                       1 L____.____| 2
+                       0 L____.____| 1
         """
         return Polygon([
-            Point(30., 10.), Point(30.,  0.), Point(50., 0.), Point(50., 30.), Point(40., 30.),
-            Point(40., 40.), Point(20., 40.), Point(0., 40.), Point(0.,  20.), Point(20., 20.),
+            Point(30.,  0.), Point(50., 0.), Point(50., 30.), Point(40., 30.), Point(40., 40.),
+            Point(20., 40.), Point(0., 40.), Point(0.,  20.), Point(20., 20.), Point(30., 10.),
         ])
 
     @staticmethod

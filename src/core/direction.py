@@ -32,8 +32,8 @@ class Direction:
     def __eq__(self, other: 'Direction'):
         d1 = self.normalized()
         d2 = other.normalized()
-        return (math.isclose(d1.x, d2.x, abs_tol=tolerance) and math.isclose(d1.y, d2.y, abs_tol=tolerance)) or \
-               (math.isclose(d1.x, -d2.x, abs_tol=tolerance) and math.isclose(d1.y, -d2.y, abs_tol=tolerance))
+        return (math.isclose(d1.x, d2.x, abs_tol=std_tolerance) and math.isclose(d1.y, d2.y, abs_tol=std_tolerance)) or \
+               (math.isclose(d1.x, -d2.x, abs_tol=std_tolerance) and math.isclose(d1.y, -d2.y, abs_tol=std_tolerance))
 
     def __add__(self, other):
         return Direction(self.x + other.x, self.y + other.y)
