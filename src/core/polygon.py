@@ -188,33 +188,53 @@ class Polygon:
 
         This is done by calculating how many edges and corners are cut by a random beam with the point as start.
         """
+        # exclude point on edges
+        if self.hits_point(point):
+            return False
         # setup simple control beam in x-direction
         control_beam = Beam(point, Direction(1, 0))
         cut_counter = 0
-
         # check how many wall edges in one direction from the point get hit by the beam from the point
-        for edge in self.edges:
-            if edge.contains_point(point):
-                # point is part of the polygon
-                return False
-            intersection = Beam.intersection(edge.to_beam(), control_beam)
-            # intersection must exist, be on the right of the point, and be on the edge
-            if intersection is not None \
-                    and intersection.x > point.x \
-                    and edge.contains_point(intersection):
-                cut_counter += 1
-
+        cut_counter += self._count_cut_edges(control_beam)
         # check how many corners the beam cuts (not passes)
-        # to cut, the corners edges must both lead upwards or downwards
-        # TODO fix
-        for corner in self.corners:
-            if corner.pt.x > point.x and control_beam.hits_point(corner.pt):
-                if (0. < corner.e1.dir.angle < 180. and 0. < corner.e2.dir.angle < 180.) or \
-                        (180. < corner.e1.dir.angle < 360. and 180. < corner.e2.dir.angle < 360.):
-                    cut_counter += 1
-
+        cut_counter += self._count_cut_corners(control_beam)
         # if the amount is odd, the point is inside
         return cut_counter % 2 == 1
+
+    def _count_cut_edges(self, beam: Beam) -> int:
+        """
+        Calculates how many edges of the polygon are cut by a beam.
+        """
+        edge_counter = 0
+        for edge in self.edges:
+            intersection = Beam.intersection(edge.to_beam(), beam)
+            # intersection must exist, be on the right of the point, and be on the edge
+            if intersection is not None \
+                    and intersection.x > beam.pt.x \
+                    and edge.contains_point(intersection):
+                edge_counter += 1
+        return edge_counter
+
+    def _count_cut_corners(self, beam: Beam) -> int:
+        """
+        Calculates how many corners of the polygon are cut by a beam.
+
+        To cut a corner, its edges must both lead upwards or downwards.
+        A horizontal edge in between must be ignored.
+        """
+        # TODO fix
+        corner_counter = 0
+        last_edge_y_norm = self.corners[0].e1.get_edge_y_norm()
+        for corner in self.corners:
+            this_edge_y_norm = corner.e2.get_edge_y_norm()
+            if this_edge_y_norm == 0:
+                continue
+            if corner.pt.x > beam.pt.x \
+                    and beam.hits_point(corner.pt) \
+                    and last_edge_y_norm == this_edge_y_norm:
+                corner_counter += 1
+            last_edge_y_norm = this_edge_y_norm
+        return corner_counter
 
     @staticmethod
     def sample1() -> 'Polygon':

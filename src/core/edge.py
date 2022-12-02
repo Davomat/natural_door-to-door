@@ -123,3 +123,14 @@ class Edge:
             return False
         # check if cutting point is on edges
         return edge_1.contains_point(beams_intersection) and edge_2.contains_point(beams_intersection)
+
+    def get_edge_y_norm(self):
+        """
+        Returns 1 if the edge runs vertically upwards, -1 downwards, and 0 if the y component is 0.
+        """
+        if self.dir.y > 0:
+            return 1
+        elif self.dir.y < 0:
+            return -1
+        else:
+            return 0

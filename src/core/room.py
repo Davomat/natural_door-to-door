@@ -186,8 +186,8 @@ class Room:
         """
         Returns a room with a barrier inside, looking like this:
         .____.____.____.____.
-        |      .__.         o
-        o      Lo_|         L____.
+        |    .____.         o
+        o    L_o__|         L____.
         |                        |
         L____.____.    .____.    |
                    \\   \\  |    o
@@ -196,7 +196,7 @@ class Room:
                        L____o____|
         """
         boundary = Polygon.sample1()
-        barriers = [Polygon([Point(15., 30.), Point(20., 30.), Point(20., 35.), Point(15., 35.)], False),
+        barriers = [Polygon([Point(10., 30.), Point(20., 30.), Point(20., 35.), Point(10., 35.)], False),
                     Polygon([Point(30., 20.), Point(40., 20.), Point(40., 10.)], False)]
         doors = [Point(0., 30.), Point(15., 30.), Point(40., 0.), Point(40., 35.), Point(50., 15.)]
 
