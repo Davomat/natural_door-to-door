@@ -1,5 +1,5 @@
 
-natural_distance = 2.5
+natural_distance = 1.5
 """Defines the minimum distance in [meter] all final ways should have to walls, doors, and obstacles."""
 
 double_corner_points_angle = 275.

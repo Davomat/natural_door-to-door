@@ -168,7 +168,7 @@ class Room:
         for i in range(len(self.doors)):
             self.nav_edges.append(Edge(self.doors[i], self.virtual_doors[i]))
 
-    def find_paths(self, nat_dist: float, sharp_angle: float) -> list[Edge]:
+    def find_paths(self, nat_dist: float, sharp_angle: float) -> tuple[list[Point], list[Edge]]:
         """
         Calculates the navigation mesh (path graph) for the room according to the given values.
         """
@@ -178,8 +178,8 @@ class Room:
         self._collect_nav_points()
         # connect all points if valid
         self._collect_nav_edges()
-        # return paths
-        return self.nav_edges
+        # return points and paths
+        return self.nav_points, self.nav_edges
 
     @staticmethod
     def sample() -> 'Room':

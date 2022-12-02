@@ -67,7 +67,7 @@ class Edge:
         """
         return Beam(self.p1, self.dir)
 
-    def contains_point(self, point: Point, tolerance=std_tolerance) -> bool:
+    def contains_point(self, point: Point) -> bool:
         """
         Checks whether a point is on the edge.
         """

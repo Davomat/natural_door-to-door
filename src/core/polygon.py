@@ -222,7 +222,6 @@ class Polygon:
         To cut a corner, its edges must both lead upwards or downwards.
         A horizontal edge in between must be ignored.
         """
-        # TODO fix
         corner_counter = 0
         last_edge_y_norm = self.corners[0].e1.get_edge_y_norm()
         for corner in self.corners:

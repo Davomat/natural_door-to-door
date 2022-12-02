@@ -1,4 +1,3 @@
-from core.polygon import Polygon
 from core.room import Room
 
 
@@ -35,7 +34,7 @@ def print_for_latex(room: Room):
 
     # navigation nodes
     for d in room.doors:
-        print(f'\\node[circle, draw, thick, scale=1.0] () at ({round(d.x, 4)},{round(d.y, 4)})', '{};')
+        print(f'\\node[rectangle, draw, ultra thick, scale=1.0] () at ({round(d.x, 4)},{round(d.y, 4)})', '{};')
     for p in room.nav_points:
         print(f'\\node[circle, draw, thick, scale=0.5] () at ({round(p.x,4)},{round(p.y,4)})', '{};')
 
