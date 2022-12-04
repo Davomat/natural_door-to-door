@@ -58,13 +58,13 @@ class Room:
         """
         Calculates the rooms virtual inner boundary polygon according to the given values.
         """
-        self.virtual_boundary = self.boundary.get_virtual_polygon(nat_dist, sharp_angle)
+        self.virtual_boundary = self.boundary.virtual_polygon(nat_dist, sharp_angle)
 
     def _set_virtual_barriers(self, nat_dist: float, sharp_angle: float):
         """
         Calculates the rooms virtual outer barrier polygons according to the given values.
         """
-        self.virtual_barriers = [barrier.get_virtual_polygon(nat_dist, sharp_angle) for barrier in self.barriers]
+        self.virtual_barriers = [barrier.virtual_polygon(nat_dist, sharp_angle) for barrier in self.barriers]
 
     def _set_virtual_doors(self, nat_dist: float):
         """

@@ -1,6 +1,6 @@
 import math
 
-from core.std_vals import std_tolerance
+from core.std_vals import *
 
 
 class Point:
@@ -26,15 +26,15 @@ class Point:
         self.x = x
         self.y = y
 
-    def __eq__(self, other):
+    def __eq__(self, other: 'Point'):
         return other is not None \
                and math.isclose(self.x, other.x, abs_tol=std_tolerance) \
                and math.isclose(self.y, other.y, abs_tol=std_tolerance)
 
-    def __add__(self, other):
+    def __add__(self, other: 'Point'):
         return Point(self.x + other.x, self.y + other.y)
 
-    def __sub__(self, other):
+    def __sub__(self, other: 'Point'):
         return Point(self.x - other.x, self.y - other.y)
 
     def __neg__(self):

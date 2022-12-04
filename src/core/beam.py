@@ -49,7 +49,7 @@ class Beam:
         new_dir = self.dir.perpendicular()
         return Beam(new_pt, new_dir)
 
-    def hits_point(self, point_to_hit):
+    def hits_point(self, point_to_hit) -> bool:
         """
         Checks whether a point lies on the beam.
         """

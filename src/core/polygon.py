@@ -103,7 +103,7 @@ class Polygon:
         self.edges = self._get_edges()
         self.corners = self._get_corners()
 
-    def get_virtual_polygon(self, nat_dist: float, sharp_angle: float) -> 'Polygon':
+    def virtual_polygon(self, nat_dist: float, sharp_angle: float) -> 'Polygon':
         """
         Calculates a new polygon inside the original if its counterclockwise (and outside otherwise),
         with the given natural distance to the original.
@@ -138,12 +138,12 @@ class Polygon:
         # return list of found points as polygon
         return Polygon(new_points, is_room=self._is_counterclockwise)
 
-    def get_other_virtual_polygon(self, nat_dist: float, sharp_angle: float) -> 'Polygon':
+    def other_virtual_polygon(self, nat_dist: float, sharp_angle: float) -> 'Polygon':
         """
         Calculates a new polygon on the other side then `get_virtual_polygon`.
         """
         self._reverse()
-        new_polygon = self.get_virtual_polygon(nat_dist, sharp_angle)
+        new_polygon = self.virtual_polygon(nat_dist, sharp_angle)
         self._reverse()
         return new_polygon
 
@@ -191,12 +191,12 @@ class Polygon:
         # exclude point on edges
         if self.hits_point(point):
             return False
-        # setup simple control beam in x-direction
+        # setup counter and simple control beam in x-direction
         control_beam = Beam(point, Direction(1, 0))
         cut_counter = 0
-        # check how many wall edges in one direction from the point get hit by the beam from the point
+        # add the amount of edges the beam cuts
         cut_counter += self._count_cut_edges(control_beam)
-        # check how many corners the beam cuts (not passes)
+        # add the amount of corners the beam cuts (not passes)
         cut_counter += self._count_cut_corners(control_beam)
         # if the amount is odd, the point is inside
         return cut_counter % 2 == 1

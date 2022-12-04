@@ -35,10 +35,10 @@ class Direction:
         return (math.isclose(d1.x, d2.x, abs_tol=std_tolerance) and math.isclose(d1.y, d2.y, abs_tol=std_tolerance)) or\
                (math.isclose(d1.x, -d2.x, abs_tol=std_tolerance) and math.isclose(d1.y, -d2.y, abs_tol=std_tolerance))
 
-    def __add__(self, other):
+    def __add__(self, other: 'Direction'):
         return Direction(self.x + other.x, self.y + other.y)
 
-    def __sub__(self, other):
+    def __sub__(self, other: 'Direction'):
         return Direction(self.x - other.x, self.y - other.y)
 
     def __neg__(self):
