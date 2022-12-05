@@ -220,10 +220,15 @@ class Polygon:
         Calculates how many corners of the polygon are cut by a beam.
 
         To cut a corner, its edges must both lead upwards or downwards.
-        A horizontal edge in between must be ignored.
         """
         corner_counter = 0
-        last_edge_y_norm = self.corners[0].e1.get_edge_y_norm()
+        # find last valid edge's normed y direction
+        last_edge_y_norm = 0
+        i = len(self.corners)
+        while last_edge_y_norm == 0:
+            i -= 1
+            last_edge_y_norm = self.corners[i].e2.get_edge_y_norm()
+        # count every corner where the last valid edge's normed y direction equals the current one
         for corner in self.corners:
             this_edge_y_norm = corner.e2.get_edge_y_norm()
             if this_edge_y_norm == 0:
