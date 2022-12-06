@@ -222,22 +222,22 @@ class Polygon:
         To cut a corner, its edges must both lead upwards or downwards.
         """
         corner_counter = 0
-        # find last valid edge's normed y direction
         last_edge_y_norm = 0
+        # find last valid edge's normed y direction (y_norm: 1 => up, -1 => down, 0 => horizontal)
         i = len(self.corners)
         while last_edge_y_norm == 0:
             i -= 1
             last_edge_y_norm = self.corners[i].e2.get_edge_y_norm()
         # count every corner where the last valid edge's normed y direction equals the current one
         for corner in self.corners:
-            this_edge_y_norm = corner.e2.get_edge_y_norm()
-            if this_edge_y_norm == 0:
+            current_edge_y_norm = corner.e2.get_edge_y_norm()
+            if current_edge_y_norm == 0:
                 continue
             if corner.pt.x > beam.pt.x \
                     and beam.hits_point(corner.pt) \
-                    and last_edge_y_norm == this_edge_y_norm:
+                    and last_edge_y_norm == current_edge_y_norm:
                 corner_counter += 1
-            last_edge_y_norm = this_edge_y_norm
+            last_edge_y_norm = current_edge_y_norm
         return corner_counter
 
     @staticmethod
