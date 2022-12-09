@@ -85,7 +85,7 @@ class Edge:
 
     def contains_point_with_tolerance(self, pt: Point, tolerance=std_tolerance) -> bool:
         """
-        Checks whether a door point is on or very near the edge.
+        Checks whether a (door) point is on or very near the edge.
         """
         # check whether point is in possible edge's x and y boundary
         if not (min(self.p1.x, self.p2.x) <= pt.x <= max(self.p1.x, self.p2.x)) \

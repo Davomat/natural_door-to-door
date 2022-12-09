@@ -53,6 +53,9 @@ class Beam:
         """
         Checks whether a point lies on the beam.
         """
+        # check for equality
+        if point_to_hit == self.pt:
+            return True
         # construct a control beam from the beams start
         beam_to_point = Beam(self.pt, Direction.from_points(self.pt, point_to_hit))
         # and check if both beams are parallel

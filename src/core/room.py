@@ -140,6 +140,10 @@ class Room:
         """
         Checks if a edge is suitable for navigation.
         """
+        # check that edge does not cut any other nav_point
+        for nav_point in self.nav_points:
+            if nav_point not in edge_to_validate.points and edge_to_validate.contains_point(nav_point):
+                return False
         # check that edge does not cut any polygon point or edge
         if self.virtual_boundary.cuts_edge(edge_to_validate):
             return False
