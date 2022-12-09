@@ -106,6 +106,9 @@ class Room:
         """
         Checks if a point is suitable for navigation.
         """
+        # check for duplicate
+        if point_to_validate in self.nav_points:
+            return False
         # point must be on or inside boundary
         if not self.virtual_boundary.surrounds_or_hits_point(point_to_validate):
             return False
@@ -120,19 +123,18 @@ class Room:
         """
         Collects all possible points for the navigation through the room.
         """
-        # add inner corners from outer shell
-        for corner in self.virtual_boundary.corners:
-            if corner.angle > 180:
-                if self._valid_nav_point(corner.pt):
-                    self.nav_points.append(corner.pt)
-        # add outer corners from inner barriers
-        for barrier in self.virtual_barriers:
-            for corner in barrier.corners:
-                if corner.angle > 180:
-                    self.nav_points.append(corner.pt)
         # add points in front of doors
         for virtual_door in self.virtual_doors:
             self.nav_points.append(virtual_door)
+        # add inner corners from outer shell
+        for corner in self.virtual_boundary.corners:
+            if corner.angle > 180 and self._valid_nav_point(corner.pt):
+                self.nav_points.append(corner.pt)
+        # add outer corners from inner barriers
+        for barrier in self.virtual_barriers:
+            for corner in barrier.corners:
+                if corner.angle > 180 and self._valid_nav_point(corner.pt):
+                    self.nav_points.append(corner.pt)
 
     def _valid_nav_edge(self, edge_to_validate: Edge) -> bool:
         """
